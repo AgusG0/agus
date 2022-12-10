@@ -1,10 +1,11 @@
-from flask import Flask ,jsonify ,request
+from flask import Flask ,jsonify, request
 # del modulo flask importar la clase Flask y los métodos jsonify,request
 from flask_cors import CORS       # del modulo flask_cors importar CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 app=Flask(__name__)  # crear el objeto app de la clase Flask
-CORS(app) #modulo cors es para que me permita acceder desde el frontend al backend
+CORS(app, resources={r"/productos/*":{"origins":"http://localhost"}}) #modulo cors es para que me permita acceder desde el frontend al backend
+# originalmente era CORS(app)
 # configuro la base de datos, con el nombre el usuario y la clave
 app.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://root:rootroot@localhost/proyecto'
 # desde el objeto app configuro la URI de la BBDD    user:clave@localhost/nombreBBDD
@@ -34,7 +35,7 @@ producto_schema=ProductoSchema()            # para crear un producto
 productos_schema=ProductoSchema(many=True)  # multiples registros
  
 # crea los endpoint o rutas (json)
-@app.route('/productos',methods=['GET'])
+@app.route('/productos/',methods=['GET'])
 def get_Productos():
     all_productos=Producto.query.all()     # query.all() lo hereda de db.Model
     result=productos_schema.dump(all_productos)  # .dump() lo hereda de ma.schema
@@ -52,7 +53,7 @@ def delete_producto(id):
     db.session.commit()
     return producto_schema.jsonify(producto)
 
-@app.route('/productos', methods=['POST']) # crea ruta o endpoint post
+@app.route('/productos/', methods=['POST']) # crea ruta o endpoint post
 def create_producto():
     print(request.json)  # request.json contiene el json que envio el cliente
     nombre=request.json['nombre']
